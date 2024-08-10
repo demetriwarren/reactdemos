@@ -1,8 +1,38 @@
+const {useForm} = window.ReactHookForm;
+
 function App(){
-  
+  return <ContactUsForm />
 }
 
+function ContactUsForm(){
+  let {register, handleSubmit} = useForm();
 
+  <form>
+    <div>
+    <label htmlFor="selectDepartment">Select Department</label>
+    <select name="selectDepartment" id="selectDepartment">
+      <option value="">Select...</option>
+      <option value="HR">Human Resources</option>
+      <option value="PR">Public Relations</option>
+      <option value="Support">Sales Support</option>
+    </select>
+    </div>
+
+    <div>
+      <label htmlFor="message"></label>
+    <textarea name="message" id="message" placeholder="Enter a message"> </textarea>
+    </div>
+
+    <div>
+    <label htmlFor="agreedToTerms"></label>
+    <input type="checkbox" name="agreedToTerms" id="agreeToTerms"/> Agree to terms.
+    </div>
+
+
+  </form>
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 
 
 // //Exercise 9 
