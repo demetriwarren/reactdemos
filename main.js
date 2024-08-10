@@ -1,41 +1,53 @@
-const {useForm} = window.ReactHookForm;
+const { useForm } = window.ReactHookForm;
+const { useState } = React;
 
-function App(){
-  return <ContactUsForm />
+function App() {
+  return (
+    <div className="container ">
+      <ContactUsForm />
+    </div>
+  );
 }
 
-function ContactUsForm(){
-  let {register, handleSubmit} = useForm();
+function ContactUsForm() {
+  let { register, handleSubmit, watch } = useForm();
 
-  <form>
-    <div>
-    <label htmlFor="selectDepartment">Select Department</label>
-    <select name="selectDepartment" id="selectDepartment">
-      <option value="">Select...</option>
-      <option value="HR">Human Resources</option>
-      <option value="PR">Public Relations</option>
-      <option value="Support">Sales Support</option>
-    </select>
-    </div>
+  console.log(register("department"));
 
-    <div>
-      <label htmlFor="message"></label>
-    <textarea name="message" id="message" placeholder="Enter a message"> </textarea>
-    </div>
+  function send(formData) {
+    console.log("submitting...")
+  }
 
-    <div>
-    <label htmlFor="agreedToTerms"></label>
-    <input type="checkbox" name="agreedToTerms" id="agreeToTerms"/> Agree to terms.
-    </div>
+  return (
+    <form onSubmit={handleSubmit(send)} className="form-control card">
+      <div>
+        <label htmlFor="selectDepartment">Select Department</label>
+        <select id="selectDepartment" {...register("department")}>
+          <option value="">Select...</option>
+          <option value="HR">Human Resources</option>
+          <option value="PR">Public Relations</option>
+          <option value="Support">Sales Support</option>
+        </select>
+      </div>
+        <br />
+      <div>
+        <label htmlFor="message"></label>
+        <textarea cols={30} rows={5} id="message" placeholder="Enter a message" {...register("message")}></textarea>
+      </div>
 
+      <div>
+        <label htmlFor="agreedToTerms"></label>
+        <input type="checkbox" id="agreeToTerms" {...register("agreedToTerms")} /> Agree to terms.
+      </div>
 
-  </form>
+      <button className="btn btn-primary ">Submit</button>
+    </form>
+  );
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 
-
-// //Exercise 9 
+// //Exercise 9
 // const { useState } = React;
 
 // function ContactUsForm() {
@@ -141,9 +153,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 
 // ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 
-
-
-
 // //exercise 8. Set up a Contact Us Form -- my example
 // const { useState } = React;
 
@@ -164,7 +173,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 
 //   let stateToString = () => {
 //     JSON.stringify({department, message, agreeToTerms})
-//   } 
+//   }
 
 //   return (
 //     <>
@@ -179,11 +188,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 //           onChange={(event) => setDepartment(event.target.value)}
 //           >
 //           <option value="">Select...</option>
-//           <option value="HR">Human Resources</option>    {/*the values will normally be a PK from the Db*/}     
+//           <option value="HR">Human Resources</option>    {/*the values will normally be a PK from the Db*/}
 //           <option value="PR">Public Relations</option>
 //           <option value="Support">Support</option>
 //         </select>
-        
+
 //         <label htmlFor="message">Message</label>
 //         <textarea
 //           name="message"
@@ -194,7 +203,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 //           >
 //           Message here
 //         </textarea>
-        
+
 //         <label htmlFor="agreeToTerms">I agree to the terms & conditions.</label>
 //         <input
 //           type="checkbox"
