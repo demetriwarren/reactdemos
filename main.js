@@ -1,51 +1,217 @@
-const { useForm } = window.ReactHookForm;
-const { useState } = React;
+//Exercise 11 Setting up a REST API
+//main.js
+const { useState, useEffect } = React;
 
-function App() {
+const BASE_URL = "http://localhost:9000";
+
+function translateStatusToErrorMessage(status) {
+  switch (status) {
+    case 401:
+      return "Please sign in again.";
+    case 403:
+      return "You do not have permission to view the data requested.";
+    default:
+      return "There was an error saving or retrieving data.";
+  }
+}
+
+async function checkStatus(response) {
+  if (response.ok) return response;
+
+  const httpError = {
+    status: response.status,
+    statusText: response.statusText,
+    url: response.url,
+    body: await response.text(),
+  };
+  console.log(`http error status: ${JSON.stringify(httpError, null, 1)}`);
+
+  let errorMessage = translateStatusToErrorMessage(httpError.status);
+  throw new Error(errorMessage);
+}
+
+function parseJSON(response) {
+  return response.json();
+}
+
+function delay(ms) {
+  return function (x) {
+    return new Promise((resolve) => setTimeout(() => resolve(x), ms));
+  };
+}
+
+const url = `${BASE_URL}/teams`;
+const teamAPI = {
+  list() {
+    return fetch(url).then(checkStatus).then(parseJSON);
+  },
+};
+
+function TeamList() {
+  const [busy, setBusy] = useState(false);
+  const [teams, setTeams] = useState([]);
+  async function loadTeams() {
+    setBusy(true);
+    let data = await teamAPI.list();
+    setBusy(false);
+    setTeams(data);
+  }
+
+  useEffect(function () {
+    loadTeams();
+  }, []);
+
   return (
-    <div className="container ">
-      <ContactUsForm />
+    <div className="list mt-2">
+      {busy && <p>Loading...</p>}
+      {teams?.map((team) => (
+        <div className="card p-4" key={team.name}>
+          <strong>{team.name}</strong>
+          <div>{team.division}</div>
+        </div>
+      ))}
     </div>
   );
 }
 
-function ContactUsForm() {
-  let { register, handleSubmit, watch } = useForm();
-
-  console.log(register("department"));
-
-  function send(formData) {
-    console.log("submitting...")
-  }
-
+function App() {
   return (
-    <form onSubmit={handleSubmit(send)} className="form-control card">
-      <div>
-        <label htmlFor="selectDepartment">Select Department</label>
-        <select id="selectDepartment" {...register("department")}>
-          <option value="">Select...</option>
-          <option value="HR">Human Resources</option>
-          <option value="PR">Public Relations</option>
-          <option value="Support">Sales Support</option>
-        </select>
-      </div>
-        <br />
-      <div>
-        <label htmlFor="message"></label>
-        <textarea cols={30} rows={5} id="message" placeholder="Enter a message" {...register("message")}></textarea>
-      </div>
-
-      <div>
-        <label htmlFor="agreedToTerms"></label>
-        <input type="checkbox" id="agreeToTerms" {...register("agreedToTerms")} /> Agree to terms.
-      </div>
-
-      <button className="btn btn-primary ">Submit</button>
-    </form>
+    <div className="container">
+      <TeamList />
+    </div>
   );
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+
+// //Exercise 10: Refactor Form with React Hook Form
+
+// const { useState } = React;
+// const { useForm } = ReactHookForm;
+
+// function ContactUsForm() {
+//   const { register, handleSubmit, formState: { errors } } = useForm();        //handleSubmit gets the data and validates it when send is clicked. 
+
+//   console.log(register("department", {required: "Desprtment is required"}))
+
+//   function send(formData) {                 
+//       console.log("Form submitted:", { formData });
+//     }
+
+//   return (                                                //after handleSubmit is done, it will use the send function to display the info to the user afterwards.
+//     <form className="mt-4" onSubmit={handleSubmit(send)}>  
+//       <div className="mb-3">
+//         <label htmlFor="department" className="form-label">
+//           Department
+//         </label>
+//         <select
+//           id="department"
+//           className={`form-select ${errors.department ? "is-invalid" : ""}`}
+//           {...register("department", {required: "Department is required"})}
+//         >
+//           <option value="">Select...</option>
+//           <option value="hr">Human Resources</option>
+//           <option value="pr">Public Relations</option>
+//           <option value="support">Support</option>
+//         </select>
+//         {errors.department && <div className="invalid-feedback">{errors.department.message}</div>}
+//       </div>
+
+//       <div className="mb-3">
+//         <label htmlFor="message" className="form-label">
+//           Message
+//         </label>
+//         <textarea
+//           id="message"
+//           cols="30"
+//           rows="5"
+//           className={`form-control ${errors.message ? "is-invalid" : ""}`}
+//           {...register("Message", {required: "Message is required"})}
+//         />
+//         {errors.message && <div className="invalid-feedback">{errors.message.message}</div>}
+//       </div>
+
+//       <div className="mb-3 form-check">
+//         <input
+//           type="checkbox"
+//           id="agreedToTerms"
+//           className={`form-check-input ${errors.agreedToTerms ? "is-invalid" : ""}`}
+//           {...register("agreedToTerms", {required: "Must agree to terms."})}
+//         />
+//         <label htmlFor="agreedToTerms" className="form-check-label">
+//           I agree to the terms and conditions.
+//         </label>
+//         {errors.agreedToTerms && <div className="invalid-feedback">{errors.agreedToTerms.message}</div>}
+//       </div>
+
+//       <button type="submit" className="btn btn-primary">
+//         Send
+//       </button>
+//     </form>
+//   );
+// }
+
+// function App() {
+//   return (
+//     <div className="container">
+//       <ContactUsForm />
+//     </div>
+//   );
+// }
+
+// ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+// //Practice with hookForm
+
+// const { useForm } = window.ReactHookForm;
+// const { useState } = React;
+
+// function App() {
+//   return (
+//     <div className="container ">
+//       <ContactUsForm />
+//     </div>
+//   );
+// }
+
+// function ContactUsForm() {
+//   let { register, handleSubmit, watch } = useForm();
+
+//   console.log(register("department"));
+
+//   function send(formData) {
+//     console.log("submitting...")
+//   }
+
+//   return (
+//     <form onSubmit={handleSubmit(send)} className="form-control card">
+//       <div>
+//         <label htmlFor="selectDepartment">Select Department</label>
+//         <select className="form-control" id="selectDepartment" {...register("department")}>
+//           <option value="">Select...</option>
+//           <option value="HR">Human Resources</option>
+//           <option value="PR">Public Relations</option>
+//           <option value="Support">Sales Support</option>
+//         </select>
+//       </div>
+//         <br />
+//       <div>
+//         <label htmlFor="message">Message</label>
+//         <textarea className="form-control" cols={30} rows={5} id="message" placeholder="Enter a message" {...register("message")}></textarea>
+//       </div>
+
+//       <div>
+//         <label htmlFor="agreedToTerms"></label>
+//         <input type="checkbox" id="agreeToTerms" {...register("agreedToTerms")} /> Agree to terms.
+//       </div>
+
+//       <button className="btn btn-primary form-control">Submit</button>
+//     </form>
+//   );
+// }
+
+// ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 
 // //Exercise 9
 // const { useState } = React;

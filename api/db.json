@@ -1,0 +1,42 @@
+{
+    "teams": [
+      { "id": 1, "name": "Atlanta Hawks", "division": "Southeast" },
+      { "id": 2, "name": "Boston Celtics", "division": "Atlantic" },
+      { "id": 3, "name": "Brooklyn Nets", "division": "Atlantic" },
+      { "id": 4, "name": "Charlotte Hornets", "division": "Southeast" },
+      { "id": 5, "name": "Chicago Bulls", "division": "Central" },
+      { "id": 6, "name": "Cleveland Cavaliers", "division": "Central" },
+      { "id": 7, "name": "Dallas Mavericks", "division": "Southwest" },
+      { "id": 8, "name": "Denver Nuggets", "division": "Northwest" },
+      { "id": 9, "name": "Detroit Pistons", "division": "Central" },
+      { "id": 10, "name": "Golden State Warriors", "division": "Pacific" },
+      { "id": 11, "name": "Houston Rockets", "division": "Southwest" },
+      { "id": 12, "name": "Indiana Pacers", "division": "Central" },
+      { "id": 13, "name": "LA Clippers", "division": "Pacific" },
+      { "id": 14, "name": "Los Angeles Lakers", "division": "Pacific" },
+      { "id": 15, "name": "Memphis Grizzlies", "division": "Southwest" },
+      { "id": 16, "name": "Miami Heat", "division": "Southeast" },
+      { "id": 17, "name": "Milwaukee Bucks", "division": "Central" },
+      {
+        "id": 18,
+        "name": "Minnesota Timberwolves",
+        "division": "Northwest"
+      },
+      { "id": 19, "name": "New Orleans Pelicans", "division": "Southwest" },
+      { "id": 20, "name": "New York Knicks", "division": "Atlantic" },
+      { "id": 21, "name": "Oklahoma City Thunder", "division": "Northwest" },
+      { "id": 22, "name": "Orlando Magic", "division": "Southeast" },
+      { "id": 23, "name": "Philadelphia 76ers", "division": "Atlantic" },
+      { "id": 24, "name": "Phoenix Suns", "division": "Pacific" },
+      {
+        "id": 25,
+        "name": "Portland Trail Blazers",
+        "division": "Northwest"
+      },
+      { "id": 26, "name": "Sacramento Kings", "division": "Pacific" },
+      { "id": 27, "name": "San Antonio Spurs", "division": "Southwest" },
+      { "id": 28, "name": "Toronto Raptors", "division": "Atlantic" },
+      { "id": 29, "name": "Utah Jazz", "division": "Northwest" },
+      { "id": 30, "name": "Washington Wizards", "division": "Southeast" }
+    ]
+  }
