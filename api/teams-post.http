@@ -1,0 +1,6 @@
+POST http://localhost:9000/teams/
+Content-Type: application/json
+
+{ "name": "Cincinnati Royals",
+  "division": "Midwest"
+}

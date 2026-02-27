@@ -1,6 +1,18 @@
-//Exercise 11 Setting up a REST API
-//main.js
+//Exercises 13, 14, 15 16
 const { useState, useEffect } = React;
+const { useForm } = ReactHookForm;
+const {
+  BrowserRouter: Router,
+  Route,
+  Routes,
+  Link,
+  NavLink,
+  NavNavLink,
+  Navigate,
+  useParams,
+  useLocation,
+  useNavigate,
+} = window.ReactRouterDOM;
 
 const BASE_URL = "http://localhost:9000";
 
@@ -41,20 +53,50 @@ function delay(ms) {
 }
 
 const url = `${BASE_URL}/teams`;
+
 const teamAPI = {
   list() {
     return fetch(url).then(checkStatus).then(parseJSON);
+  },
+  find() {
+    return fetch(`${url}/${team.id}`).then(checkStatus).then(parseJSON);
+  },
+  post() {
+    return fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "JSON.stringify(song),",
+    })
+      .then(checkStatus)
+      .then(parseJSON);
+  },
+  put() {
+    return fetch(`${url}/${team.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: "JSON.stringify(song),",
+    })
+      .then(checkStatus)
+      .then(parseJSON); //normally wouldnt have this on a put, since we arent returning anything.
   },
 };
 
 function TeamList() {
   const [busy, setBusy] = useState(false);
   const [teams, setTeams] = useState([]);
+  const [errorMessage, setErrorMessage] = useState(undefined);
+
   async function loadTeams() {
-    setBusy(true);
-    let data = await teamAPI.list();
-    setBusy(false);
-    setTeams(data);
+    try {
+      setBusy(true);
+      let data = await teamAPI.list();
+      setBusy(false);
+      setTeams(data);
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   useEffect(function () {
@@ -62,28 +104,381 @@ function TeamList() {
   }, []);
 
   return (
-    <div className="list mt-2">
+    <div className="d-flex flex-wrap mt-2 gap-2">
+      {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
       {busy && <p>Loading...</p>}
       {teams?.map((team) => (
-        <div className="card p-4" key={team.name}>
+        <div className="card p-4" key={team.id}>
           <strong>{team.name}</strong>
           <div>{team.division}</div>
+          <div>
+            <Link to={`/teams/edit/${team.id}`}>Edit team</Link>
+          </div>
         </div>
       ))}
     </div>
   );
 }
 
-function App() {
+function HomePage() {
+  return <h2>Home</h2>;
+}
+
+function TeamsPage() {
   return (
-    <div className="container">
+    <div>
+      <header className="d-flex justify-content-between">
+        <h2>Teams</h2>
+        <Link className="btn btn-outline-primary p-2" to="/teams/create">
+          + Add Team
+        </Link>
+      </header>
+      <hr />
       <TeamList />
     </div>
   );
 }
 
+function TeamCreatePage() {
+  return (
+    <div>
+      <h2>Add Team</h2>
+      <hr />
+      <TeamFormPage />
+    </div>
+  );
+}
+
+function TeamEditPage() {
+  return (
+    <div>
+      <h2>Edit Team</h2>
+      <hr />
+      <TeamFormPage />
+    </div>
+  );
+}
+
+function TeamFormPage() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(undefined);
+  const navigate = useNavigate();
+
+  async function save(team) {
+    try {
+      setBusy(true);
+      if (!team.id) {
+        let newTeam = await teamAPI.post(team);
+      } else {
+        await teamAPI.put(team);
+      }
+
+      navigate("/teams");
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      {busy && <p>Saving...</p>}
+      {error && <div className="alert alert-danger">{error}</div>}
+      <form onSubmit={handleSubmit(save)}>
+        <div className="card w-25 p-4">
+          <label htmlFor="teamName" className="form-label">
+            Team Name
+          </label>
+          <input
+            type="text"
+            className="form-control is-invalid"
+            {...register("team", { required: "Team name is required." })}
+          />
+          <p className="invalid-feedback ">{errors.team?.message}</p>
+          <br />
+          <div>
+            <label htmlFor="teamName" className="form-label">
+              Division
+            </label>
+            <input
+              type="text"
+              className="form-control is-invalid"
+              {...register("division", { required: "Division is required." })}
+            />
+            <p className="invalid-feedback">{errors.division?.message}</p>
+          </div>
+          <br />
+          <br />
+          <div className="d-flex justify-content-end mt-5">
+            <button type="submit" className="btn btn-primary mt-2">
+              Save
+            </button>
+          </div>
+        </div>
+      </form>
+    </>
+  );
+}
+
+function PlayersPage() {
+  return <h2>Players</h2>;
+}
+
+function App() {
+  return (
+    <Router>
+      <div>
+        <nav className="container nav-pills mt-4">
+          <ul className="nav">
+            <li className="nav-item">
+              <NavLink className="nav-link" to="/">
+                Home
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink className="nav-link" to="/teams">
+                Teams
+              </NavLink>
+            </li>
+            <li className="nav-item">
+              <NavLink className="nav-link" to="/players">
+                Players
+              </NavLink>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <div className="container mt-4">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/teams" element={<TeamsPage />} />
+          <Route path="/teams/create" element={<TeamCreatePage />} />
+          <Route path="/teams/edit/:id" element={<TeamEditPage />} />
+          <Route path="/players" element={<PlayersPage />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 
+//Exercise 13 reference code
+// const {
+//   BrowserRouter: Router,
+//   Route,
+//   Routes,
+//   NavLink,
+//   NavNavLink,
+//   Navigate,
+//   useParams,
+//   useLocation,
+//   useNavigation,
+// } = window.ReactRouterDOM;
+
+// function Home() {
+//   return <h2>Home</h2>;
+// }
+
+// function About() {
+//   return <h2>About</h2>;
+// }
+
+// function Contact() {
+//   return <h2>Contact</h2>;
+// }
+
+// function NotFound() {
+//   return (
+//     <>
+//       <h2>Uh oh.</h2>
+//       <p>
+//         The page you requested could not be found. Is there any chance you
+//         were looking for one of these?
+//       </p>
+//     </>
+//   );
+// }
+
+// function App() {
+//   return (
+//     <Router>
+//       <div>
+//         <nav className="container mt-4">
+//           <ul className="nav nav-pills">
+//             <li className="nav-item">
+//               <NavLink className="nav-link" to="/">Home</NavLink>
+//             </li>
+//             <li className="nav-item">
+//               <NavLink className="nav-link" to="/about">About</NavLink>
+//             </li>
+//             <li className="nav-item ">
+//               <NavLink className="nav-link" to="/contact">Contact</NavLink>
+//             </li>
+//           </ul>
+//         </nav>
+
+//         <div className="container mt-4">
+//           <Routes>
+//             <Route path="/" element={<Home />} />
+//             <Route path="about" element={<About />} />
+//             <Route path="contact" element={<Contact />} />
+//             <Route path="*" element={<NotFound />} />
+//           </Routes>
+//         </div>
+//       </div>
+//     </Router>
+//   );
+// }
+
+// ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+// Exercise 12
+// const { useState, useEffect } = React;
+
+// const BASE_URL = "http://localhost:9000";
+
+// function translateStatusToErrorMessage(status) {
+//   switch (status) {
+//     case 401:
+//       return "Please sign in again.";
+//     case 403:
+//       return "You do not have permission to view the data requested.";
+//     default:
+//       return "There was an error saving or retrieving data.";
+//   }
+// }
+
+// async function checkStatus(response) {   //checks to see if there is an http error, if there is one, it will throw an error to show it. Tells the api what to display based on the error.
+//   if (response.ok) return response;
+
+//   const httpError = {       //these are the different error information pieces. have these as a way to get each piece of data so we arent losing anything.
+//     status: response.status,
+//     statusText: response.statusText,
+//     url: response.url,
+//     body: await response.text(),
+//   };
+//   console.log(`http error status: ${JSON.stringify(httpError, null, 1)}`);
+
+//   let errorMessage = translateStatusToErrorMessage(httpError.status);
+//   throw new Error(errorMessage);
+// }
+
+// function parseJSON(response) {
+//   return response.json();
+// }
+
+// function delay(ms) {
+//   return function (x) {
+//     return new Promise((resolve) => setTimeout(() => resolve(x), ms));
+//   };
+// }
+
+// const url = `${BASE_URL}/teams`;  //to simulate an error change the url here
+// const teamAPI = {
+//   list() {
+//     return fetch(url).then(checkStatus).then(parseJSON);    //this is updating the API to use the Rest API(fetch).
+//     //fetch gets the url, then checks the status code of the url, then parses the data to json to be sent over the server.
+//   },
+// };
+
+// function TeamList() {
+//   const [busy, setBusy] = useState(false);
+//   const [teams, setTeams] = useState([]);
+//   const [errorMessage, setErrorMessage] = useState(undefined);
+//   async function loadTeams() {
+//     try{
+//       setBusy(true);
+//       let data = await teamAPI.list();
+//       setTeams(data)
+//     }
+//     catch (error) {
+//       setErrorMessage(error.message);
+//     }
+//     finally{
+//       setBusy(false);
+//     }
+//   }
+
+//   useEffect(function () {
+//     loadTeams();
+//   }, []);
+
+//   //error message in the return displays the message to the user when an error actually occurs
+//   return (
+//     <div className="list mt-2">
+//       {busy && <p>Loading...</p>}
+//       {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+//       {teams?.map((team) => (   //this takes the array of teams and iterates thru each, and displays a card with each teams info
+//         <div className="card p-4" key={team.name}>
+//           <strong>{team.name}</strong>
+//           <div>{team.division}</div>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// }
+
+// function App() {
+//   return (
+//     <div className="container">
+//       <TeamList />
+//     </div>
+//   );
+// }
+
+// ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+// //Fetch
+
+// const okUrl = "http://localhost:9000/teams";
+// const notFoundErrorUrl = "https://httpstat.us/404";
+// const forbiddenErrorUrl = "https://httpstat.us/403";
+// const serverErrorUrl = "https://httpstat.us/500";
+
+// function translateStatusToErrorMessage(status) {
+//   switch (status) {
+//     case 401:
+//       return "Please sign in again.";
+//     case 403:
+//       return "You do not have permission to view the data requested.";
+//     default:
+//       return "There was an error saving or retrieving data.";
+//   }
+// }
+
+// async function checkStatus(response) {
+//   if (response.ok) return response;
+
+//   const httpError = {
+//     status: response.status,
+//     statusText: response.statusText,
+//     url: response.url,
+//     body: await response.text(),
+//   };
+//   console.log(`http error status: ${JSON.stringify(httpError, null, 1)}`);
+
+//   let errorMessage = translateStatusToErrorMessage(httpError.status);
+//   throw new Error(errorMessage);
+// }
+
+// function parseJSON(response) {
+//   return response.json();
+// }
+
+// async function loadTeams(){
+//   let response = await fetch(notFoundErrorUrl).then(checkStatus).then(parseJSON);
+
+// }
+
+// loadTeams();
 
 // //Exercise 10: Refactor Form with React Hook Form
 
@@ -91,16 +486,16 @@ ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 // const { useForm } = ReactHookForm;
 
 // function ContactUsForm() {
-//   const { register, handleSubmit, formState: { errors } } = useForm();        //handleSubmit gets the data and validates it when send is clicked. 
+//   const { register, handleSubmit, formState: { errors } } = useForm();        //handleSubmit gets the data and validates it when send is clicked.
 
 //   console.log(register("department", {required: "Desprtment is required"}))
 
-//   function send(formData) {                 
+//   function send(formData) {
 //       console.log("Form submitted:", { formData });
 //     }
 
 //   return (                                                //after handleSubmit is done, it will use the send function to display the info to the user afterwards.
-//     <form className="mt-4" onSubmit={handleSubmit(send)}>  
+//     <form className="mt-4" onSubmit={handleSubmit(send)}>
 //       <div className="mb-3">
 //         <label htmlFor="department" className="form-label">
 //           Department

@@ -16,6 +16,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.52.2",
+    "react-router-dom": "6.3",
     "serve": "^14.2.3"
   },
   "devDependencies": {

@@ -1,0 +1,7 @@
+PUT http://localhost:9000/teams/31
+Content-Type: application/json
+
+{ 
+    "name": "Cincinnati Royals",
+    "division": "Midwest"
+}
